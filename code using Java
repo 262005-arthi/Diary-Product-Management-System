@@ -1,0 +1,254 @@
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
+
+class Employee {
+    protected String name, place;
+    protected int id, num;
+
+    public void write(List<Employee> employees) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Enter the employee details:");
+        System.out.print("Name: ");
+        name = scanner.nextLine();
+        System.out.print("ID: ");
+        id = scanner.nextInt();
+        System.out.print("Phone Number: ");
+        num = scanner.nextInt();
+        System.out.print("Place: ");
+        scanner.nextLine(); // consume newline
+        place = scanner.nextLine();
+
+        // Add the new employee to the list
+        employees.add(this);
+        System.out.println("Employee added successfully!");
+    }
+
+    public void display(List<Employee> employees) {
+        System.out.println("Employee Details:");
+        for (Employee emp : employees) {
+            System.out.println("Name: " + emp.name + ", ID: " + emp.id + ", Phone Number: " + emp.num + ", Place: " + emp.place);
+        }
+    }
+}
+
+class BillCalculate {
+    protected String[] unit1 = {"twofiftyml", "fivehundredml", "sevenfiftyml", "onelitre"};
+    protected String mode, unit, day = "day", month;
+    protected int mornltr, totalltr, y, tokenleft;
+    protected float daybill, totalmonthbill;
+    protected float[] tokenCosts = {2.5f, 5.0f, 7.5f, 7.5f};
+
+    public float bill() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("\nEnter the mode --> Day/Month: ");
+        mode = scanner.nextLine();
+        System.out.println("List of litres we have:");
+        for (String unit : unit1) {
+            System.out.println(unit);
+        }
+
+        if (mode.equals(day)) {
+            System.out.print("\nEnter the unit you bought: ");
+            unit = scanner.nextLine();
+            System.out.print("Do you buy the milk both evening and morning? (yes/no): ");
+            String x = scanner.nextLine();
+            if (x.equals("no")) {
+                daybill = calculateDayBill(scanner, unit);
+                System.out.println("Day Bill: " + daybill);
+                return daybill;
+            } else {
+              //  System.out.print("\nEnter the amount of litre you have bought in both evening and morning: ");
+              //  totalltr = scanner.nextInt();
+                daybill = calculateDayBill(scanner, unit) * 2; // Double the price for both morning and evening
+                System.out.println("Day Bill: " + daybill);
+                return daybill;
+            }
+        } else {
+            return calculateMonthlyBill(scanner);
+        }
+    }
+
+    private float calculateDayBill(Scanner scanner, String unit) {
+        switch (unit) {
+            case "twofiftyml":
+                return 2.5f;
+            case "fivehundredml":
+                return 5.0f;
+            case "sevenfiftyml":
+                return 7.5f;
+            case "onelitre":
+                System.out.print("\nEnter the amount of litre you have bought: ");
+                mornltr = scanner.nextInt();
+                return mornltr * 35; // Assuming a fixed cost per litre
+            default:
+                return 0;
+        }
+    }
+
+    private float calculateMonthlyBill(Scanner scanner) {
+        System.out.print("\nEnter the month: ");
+        month = scanner.nextLine();
+        int daysInMonth = getDaysInMonth(month);
+        if (daysInMonth == -1) {
+            System.out.println("Invalid month.");
+            return 0;
+        }
+
+        System.out.print("\nEnter token type count: ");
+        y = scanner.nextInt();
+        float totalMonthBill = 0;
+
+        for (int i = 0; i < y; i++) {
+            System.out.print("\nEnter which tokens left (token1/token2/token3/token4): ");
+            String token = scanner.next();
+            System.out.print("Enter the number of tokens left: ");
+            tokenleft = scanner.nextInt();
+            totalMonthBill += calculateTokenBill(token, tokenleft, daysInMonth);
+        }
+
+        System.out.println("Your total month bill is: " + totalMonthBill);
+        return totalMonthBill;
+    }
+
+    private int getDaysInMonth(String month) {
+        switch (month.toLowerCase()) {
+            case "january":
+            case "march":
+            case "may":
+            case "july":
+            case "august":
+            case "october":
+            case "december":
+                return 31;
+            case "april":
+            case "june":
+            case "september":
+            case "november":
+                return 30;
+            case "february":
+                return 28; // Simplification, not accounting for leap years
+            default:
+                return -1; // Invalid month
+        }
+    }
+
+    private float calculateTokenBill(String token, int tokenleft, int daysInMonth) {
+        int tokenIndex = Integer.parseInt(token.replace("token", "")) - 1;
+        return (daysInMonth - tokenleft) * tokenCosts[tokenIndex];
+    }
+}
+
+class Customer {
+    protected String name, place;
+    protected int id, phonenum;
+
+    public void customerWrite(List<Customer> customers) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Enter the customer details:");
+        System.out.print("Name: ");
+        name = scanner.nextLine();
+        System.out.print("ID: ");
+        id = scanner.nextInt();
+        System.out.print("Phone Number: ");
+        phonenum = scanner.nextInt();
+        System.out.print("Place: ");
+        scanner.nextLine(); // consume newline
+        place = scanner.nextLine();
+
+        // Add the new customer to the list
+        customers.add(this);
+        System.out.println("Customer added successfully!");
+    }
+
+    public void display(List<Customer> customers) {
+        System.out.println("Customer Details:");
+        for (Customer cust : customers) {
+            System.out.println("Name: " + cust.name + ", ID: " + cust.id + ", Phone Number: " + cust.phonenum + ", Place: " + cust.place);
+        }
+    }
+}
+
+class Shopkeeper extends Customer {
+    public void shopWrite(List<Customer> customers) {
+        System.out.println("Customer type: Shop Keeper");
+        customerWrite(customers);
+    }
+
+    public float shopBill() {
+        return new BillCalculate().bill();
+    }
+}
+
+class HomeBase extends Customer {
+    public void shopWrite(List<Customer> customers) {
+        System.out.println("Customer type: Homebase");
+        customerWrite(customers);
+    }
+
+    public float shopBill() {
+        return new BillCalculate().bill();
+    }
+}
+
+public class Diary_Product {
+    public static void main(String[] args) {
+        System.out.println("***********************************************   JAVA MINI PROJECT **************************************************");
+        System.out.println("**************************************       DIARY COMPANY'S MANAGEMENT     *****************************************");
+
+        List<Employee> employees = new ArrayList<>();
+        List<Customer> customers = new ArrayList<>();
+        Shopkeeper shopkeeper = new Shopkeeper();
+        HomeBase homeBase = new HomeBase();
+        Scanner scanner = new Scanner(System.in);
+        int choice;
+
+        while (true) {
+            System.out.println("[1] . ADD employee");
+            System.out.println("[2] . DISPLAY EMPLOYEE DETAILS");
+            System.out.println("[3] . SHOPKEEPER ADD");
+            System.out.println("[4] . CALCULATE SHOPKEEPER BILL");
+            System.out.println("[5] . HOMEBASE ADD");
+            System.out.println("[6] . CALCULATE HOMEBASE BILL");
+            System.out.println("[7] . DISPLAY DETAILS OF SHOPKEEPER");
+            System.out.println("[8] . DISPLAY DETAILS OF HOMEBASE");
+            System.out.println("[9] . EXIT");
+            System.out.print("Enter the choice: ");
+            choice = scanner.nextInt();
+
+            switch (choice) {
+                case 1:
+                    Employee emp = new Employee();
+                    emp.write(employees);
+                    break;
+                case 2:
+                    Employee empDisplay = new Employee();
+                    empDisplay.display(employees);
+                    break;
+                case 3:
+                    shopkeeper.shopWrite(customers);
+                    break;
+                case 4:
+                    System.out.println("Shopkeeper Bill: " + shopkeeper.shopBill());
+                    break;
+                case 5:
+                    homeBase.shopWrite(customers);
+                    break;
+                case 6:
+                    System.out.println("Homebase Bill: " + homeBase.shopBill());
+                    break;
+                case 7:
+                    shopkeeper.display(customers);
+                    break;
+                case 8:
+                    homeBase.display(customers);
+                    break;
+                case 9:
+                    System.exit(0);
+                    break;
+                default:
+                    System.out.println("Invalid choice. Please try again.");
+            }
+        }
+    }
+}
